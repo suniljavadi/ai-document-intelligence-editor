@@ -1,0 +1,25 @@
+services:
+  api:
+    build: .
+    environment:
+      DATABASE_URL: postgresql+psycopg://document:document@db:5432/documents
+      MOCK_MODE: "true"
+      LLM_PROVIDER: mock
+    ports: ["8000:8000"]
+    depends_on: [db]
+  frontend:
+    build: .
+    command: streamlit run frontend/streamlit_app.py --server.address=0.0.0.0 --server.port=8501
+    environment:
+      API_URL: http://api:8000
+    ports: ["8501:8501"]
+    depends_on: [api]
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: documents
+      POSTGRES_USER: document
+      POSTGRES_PASSWORD: document
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+volumes:
+  pgdata:

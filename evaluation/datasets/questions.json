@@ -1,0 +1,5 @@
+[
+  {"document": "customer_migration_plan.txt", "question": "What database is selected?", "expected_terms": ["PostgreSQL"]},
+  {"document": "customer_migration_plan.txt", "question": "What information is missing?", "expected_terms": ["rollback"]},
+  {"document": "customer_migration_plan.txt", "question": "What is the main risk?", "expected_terms": ["delay"]}
+]
