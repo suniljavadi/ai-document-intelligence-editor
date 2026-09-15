@@ -1,5 +1,9 @@
 # AI Document Intelligence & Editor
 
+**Status: Runnable portfolio implementation with deterministic mock mode**
+
+**Portfolio status: Runnable implementation with deterministic mock mode**
+
 Runnable portfolio implementation of an evidence-oriented document workspace. It uploads PDF, DOCX, TXT, and Markdown files, parses them through an adapter, chunks and stores source metadata, analyzes content, answers questions with citations, proposes AI edits without overwriting text, preserves versions, and produces deterministic version diffs.
 
 **Status:** runnable portfolio implementation. **Synthetic Data:** the sample document and evaluation set are synthetic. **Mock Integrations:** the default LLM is deterministic and does not require an API key.
@@ -87,13 +91,22 @@ The strongest design choice is the split between deterministic and probabilistic
 - Added reviewable AI editing operations, deterministic version comparison, upload validation, request IDs, Docker configuration, and pytest coverage.
 - Created a synthetic evaluation runner for answer term recall and documented production limitations and scaling considerations.
 
-## Git Setup
+## Resume Relevance
+
+Demonstrates FastAPI, Streamlit, document parser adapters, chunking, metadata, grounded retrieval, citations, Pydantic outputs, version diffs, Docker, PostgreSQL readiness, and pytest-based smoke coverage.
+
+## Author and Related Work
+
+**Sunil Javadi** · [GitHub](https://github.com/suniljavadi) · [Portfolio](https://github.com/suniljavadi/sunil-portfolio) · [LinkedIn](https://www.linkedin.com/in/sunil-javadi/)
+
+- [AI Document Intelligence and Editor](https://github.com/suniljavadi/ai-document-intelligence-editor)
+- [Enterprise RAG Knowledge Assistant](https://github.com/suniljavadi/Enterprise-RAG-Confluence-Knowledge-Assistant)
+- [Enterprise RAG Meeting Intelligence Agent](https://github.com/suniljavadi/Enterprise-RAG-Meeting-Intelligence-Agent)
+
+## Local Git Workflow
 
 ```powershell
-git init
 git add .
-git commit -m "Initial commit"
-git branch -M main
-git remote add origin <YOUR_GITHUB_REPO_URL>
-git push -u origin main
+git commit -m "Document AI workspace"
+git push origin main
 ```
