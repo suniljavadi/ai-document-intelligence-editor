@@ -6,7 +6,7 @@ from pathlib import Path
 from fastapi import Depends, FastAPI, File, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.orm import Session
 from app.ai import MockLLMProvider, analyze_text
 from app.core.config import settings
@@ -18,7 +18,12 @@ from app.schemas import DocumentAnalysisSchema, DocumentSummary, EditSuggestion,
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 app = FastAPI(title=settings.app_name, version="1.0.0")
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.cors_origins,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 Base.metadata.create_all(bind=engine)
 parser = DocumentParser()
 llm = MockLLMProvider()
@@ -51,16 +56,27 @@ def health():
     return {"status": "ok", "service": settings.app_name, "llm_provider": settings.llm_provider}
 
 
+@app.get("/health/ready")
+def readiness(db: Session = Depends(get_db)):
+    try:
+        db.execute(text("SELECT 1"))
+    except Exception:
+        logger.warning("Readiness check failed")
+        raise HTTPException(503, "Database unavailable") from None
+    return {"status": "ready", "service": settings.app_name}
+
+
 @app.post("/api/v1/documents/upload", response_model=DocumentSummary)
 async def upload_document(file: UploadFile = File(...), db: Session = Depends(get_db)):
-    data = await file.read()
     limit = settings.max_upload_size_mb * 1024 * 1024
+    data = await file.read(limit + 1)
     if len(data) > limit:
         raise HTTPException(413, f"File exceeds {settings.max_upload_size_mb} MB limit")
     try:
         content = parser.parse(file.filename or "document.txt", data)
     except Exception as exc:
-        raise HTTPException(400, f"Could not parse document: {exc}") from exc
+        logger.warning("Document parsing failed")
+        raise HTTPException(400, "Could not parse document; verify the file is valid and supported") from None
     if not content.strip():
         raise HTTPException(400, "Document contains no extractable text")
     title = Path(file.filename or "document").stem

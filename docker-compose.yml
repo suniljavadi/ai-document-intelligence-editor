@@ -6,14 +6,24 @@ services:
       MOCK_MODE: "true"
       LLM_PROVIDER: mock
     ports: ["8000:8000"]
-    depends_on: [db]
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready')"]
+      interval: 15s
+      timeout: 3s
+      retries: 5
+      start_period: 20s
   frontend:
     build: .
     command: streamlit run frontend/streamlit_app.py --server.address=0.0.0.0 --server.port=8501
     environment:
       API_URL: http://api:8000
     ports: ["8501:8501"]
-    depends_on: [api]
+    depends_on:
+      api:
+        condition: service_healthy
   db:
     image: postgres:16-alpine
     environment:
@@ -21,5 +31,10 @@ services:
       POSTGRES_USER: document
       POSTGRES_PASSWORD: document
     volumes: ["pgdata:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U document -d documents"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 volumes:
   pgdata:

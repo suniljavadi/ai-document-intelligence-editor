@@ -58,6 +58,7 @@ docker compose up --build
 ```
 
 API: `http://localhost:8000/docs`. UI: `http://localhost:8501`.
+Compose waits for PostgreSQL and API readiness before starting dependent services.
 
 ## API Examples
 
@@ -78,7 +79,9 @@ The evaluation reports synthetic term recall only; it does not claim summary qua
 
 ## Security and Limitations
 
-Document text is treated as data by the mock provider and is never used as a system instruction. Secrets belong in environment variables. The sample has an authorization-ready document ID boundary, but authentication, per-user authorization, malware scanning, asynchronous workers, a real vector index, and production LLM integration still need to be added before deployment.
+Document text is treated as data by the mock provider and is never used as a system instruction. Secrets belong in environment variables. Set `CORS_ORIGINS` to a JSON array of trusted origins (for example, `["https://app.example.com"]`); cross-origin access is disabled by default. The upload endpoint loads no more than the configured size limit plus one byte into application memory before rejecting oversized input. `/health` is a liveness check and `/health/ready` verifies database connectivity without returning connection details.
+
+This repository is not production-ready for untrusted users yet: authentication, per-user authorization, malware scanning, asynchronous workers, a real vector index, production LLM integration, and managed secret handling still need to be added. The included mock mode and local Compose database credentials are for demonstration only. Apply reviewed database migrations and replace demo credentials before any deployment.
 
 ## Interview Notes
 
